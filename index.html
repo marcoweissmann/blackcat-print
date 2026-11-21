@@ -253,6 +253,8 @@ textarea:focus, input[type=text]:focus { border-color: var(--primary); }
       <div class="slider"><div class="head"><span data-i="tune"></span><b id="tuneV">0 %</b></div><input type="range" id="tune" min="-30" max="30" value="0"></div>
       <div class="hint" data-i="tuneHint"></div>
       <div class="slider"><div class="head"><span data-i="feedAfter"></span><b id="feedV">1,0 cm</b></div><input type="range" id="feed" min="0" max="300" value="80"></div>
+      <div class="row mt"><button class="toggle" id="safeB" data-i="safeMode"></button></div>
+      <div class="hint" data-i="safeModeHint"></div>
     </div>
     <div class="sec" data-i="secLanguage"></div>
     <div class="card"><div class="seg" id="langSeg"><button>Deutsch</button><button>English</button></div></div>
@@ -458,7 +460,7 @@ const store = {
 const I18N = {
   de: {
     appName: 'BlackCat Print', history: 'Verlauf', settings: 'Einstellungen',
-    noBluetooth: 'Dieser Browser kann kein Bluetooth. Auf dem iPhone die App <b>Bluefy</b> verwenden, auf Android/PC Chrome oder Edge.',
+    noBluetooth: 'Dieser Browser kann kein Bluetooth. Auf dem iPhone die App <b>Bluefy</b> oder <b>BLE Link</b> verwenden, auf Android/PC Chrome oder Edge.',
     tabImage: 'Bild', tabText: 'Text', tabTemplates: 'Vorlagen',
     chooseFile: 'Bild oder PDF wählen', chooseFileHint: 'Foto aus der Mediathek, Datei oder PDF',
     other: 'Anderes', crop: 'Zuschneiden', rotate: 'Drehen', photo: 'Foto', graphics: 'Grafik & Text',
@@ -474,13 +476,13 @@ const I18N = {
     secPrinter: 'DRUCKER', connectPrinter: 'Drucker verbinden', feedPaper: 'Papier vorschieben', disconnect: 'Trennen',
     secPrint: 'DRUCK', tune: 'Feinabstimmung Druckstärke', tuneHint: 'Gilt für Hell, Normal und Kräftig. Bei blassem Druck erhöhen.',
     feedAfter: 'Papiervorschub nach dem Druck', secLanguage: 'SPRACHE', secAbout: 'ÜBER', aboutTitle: 'BlackCat Print',
-    aboutText: 'Druckt direkt per Bluetooth auf PD01-/MX-Minidrucker. Kein Konto, keine Werbung. Alles läuft im Browser auf deinem Gerät; Bilder und Texte verlassen es nicht. Auf dem iPhone in der App <b>Bluefy</b> öffnen.',
+    aboutText: 'Druckt direkt per Bluetooth auf PD01-/MX-Minidrucker. Kein Konto, keine Werbung. Alles läuft im Browser auf deinem Gerät; Bilder und Texte verlassen es nicht. Auf dem iPhone in der App <b>Bluefy</b> oder <b>BLE Link</b> öffnen.',
     reset: 'Zurücksetzen', apply: 'Übernehmen',
     // dynamisch
     connect: 'Verbinden', ready: '{0} · bereit', connecting: 'Verbinde …', printing: 'Druckt …', printingPct: 'Druckt … {0} %',
     printer: 'Drucker', unnamed: 'Unbenannt', noPrinter: 'Noch kein Drucker verbunden', connected: 'verbunden', notConnected: 'nicht verbunden',
     noPaper: 'Kein Papier', tooHot: 'Zu heiß – kurz abkühlen lassen', lowBattery: 'Akku schwach',
-    noBtBrowser: 'Kein Bluetooth in diesem Browser', noBtHint: 'Kein Bluetooth – auf dem iPhone Bluefy verwenden',
+    noBtBrowser: 'Kein Bluetooth in diesem Browser', noBtHint: 'Kein Bluetooth – auf dem iPhone Bluefy oder BLE Link verwenden',
     notResponding: 'Drucker reagiert nicht', connectFailed: 'Verbindung fehlgeschlagen: {0}', printFailed: 'Drucken fehlgeschlagen: {0}',
     nothingToPrint: 'Erst etwas zum Drucken auswählen', printed: 'Gedruckt', printedN: '{0} × gedruckt', fed: 'Vorgeschoben',
     noImage: 'Noch kein Bild ausgewählt', loading: 'Lade …', imageError: 'Bild konnte nicht gelesen werden',
@@ -490,11 +492,14 @@ const I18N = {
     printAgain: 'Nochmal drucken', open: 'Öffnen', delete: 'Löschen',
     kind_bild: 'Bild', kind_text: 'Text', kind_checkliste: 'Checkliste', kind_qr: 'QR-Code', kind_banner: 'Banner', kind_notiz: 'Notiz', kind_: 'Druck',
     defText: 'Hallo!', defListTitle: 'Einkauf', defListItems: 'Milch\nBrot\nÄpfel', defBanner: 'Alles Gute!',
-    switchTo: 'Switch to English'
+    switchTo: 'Switch to English',
+    step_request: 'Drucker auswählen', step_connect: 'Verbindung aufbauen', step_service: 'Druckdienst suchen',
+    step_char: 'Schreibkanal suchen', step_write: 'Daten senden',
+    safeMode: 'Sichere Übertragung', safeModeHint: 'Sendet langsamer. Einschalten, wenn Drucke abgeschnitten werden (auf Mac, iPhone und iPad automatisch an).'
   },
   en: {
     appName: 'BlackCat Print', history: 'History', settings: 'Settings',
-    noBluetooth: 'This browser has no Bluetooth support. On iPhone use the <b>Bluefy</b> app, on Android/PC use Chrome or Edge.',
+    noBluetooth: 'This browser has no Bluetooth support. On iPhone use the <b>Bluefy</b> or <b>BLE Link</b> app, on Android/PC use Chrome or Edge.',
     tabImage: 'Image', tabText: 'Text', tabTemplates: 'Templates',
     chooseFile: 'Choose image or PDF', chooseFileHint: 'Photo from your library, a file or a PDF',
     other: 'Change', crop: 'Crop', rotate: 'Rotate', photo: 'Photo', graphics: 'Graphics & text',
@@ -510,12 +515,12 @@ const I18N = {
     secPrinter: 'PRINTER', connectPrinter: 'Connect printer', feedPaper: 'Feed paper', disconnect: 'Disconnect',
     secPrint: 'PRINTING', tune: 'Fine-tune strength', tuneHint: 'Applies to Light, Normal and Strong. Increase it if prints come out faint.',
     feedAfter: 'Paper feed after printing', secLanguage: 'LANGUAGE', secAbout: 'ABOUT', aboutTitle: 'BlackCat Print',
-    aboutText: 'Prints directly via Bluetooth to PD01/MX mini printers. No account, no ads. Everything runs in your browser on your device; images and texts never leave it. On iPhone, open it in the <b>Bluefy</b> app.',
+    aboutText: 'Prints directly via Bluetooth to PD01/MX mini printers. No account, no ads. Everything runs in your browser on your device; images and texts never leave it. On iPhone, open it in the <b>Bluefy</b> or <b>BLE Link</b> app.',
     reset: 'Reset', apply: 'Apply',
     connect: 'Connect', ready: '{0} · ready', connecting: 'Connecting …', printing: 'Printing …', printingPct: 'Printing … {0} %',
     printer: 'Printer', unnamed: 'Unnamed', noPrinter: 'No printer connected yet', connected: 'connected', notConnected: 'not connected',
     noPaper: 'Out of paper', tooHot: 'Too hot – let it cool down', lowBattery: 'Battery low',
-    noBtBrowser: 'No Bluetooth in this browser', noBtHint: 'No Bluetooth – use Bluefy on iPhone',
+    noBtBrowser: 'No Bluetooth in this browser', noBtHint: 'No Bluetooth – use Bluefy or BLE Link on iPhone',
     notResponding: 'Printer not responding', connectFailed: 'Connection failed: {0}', printFailed: 'Printing failed: {0}',
     nothingToPrint: 'Choose something to print first', printed: 'Printed', printedN: 'Printed {0} ×', fed: 'Paper fed',
     noImage: 'No image selected yet', loading: 'Loading …', imageError: 'Could not read the image',
@@ -525,7 +530,10 @@ const I18N = {
     printAgain: 'Print again', open: 'Open', delete: 'Delete',
     kind_bild: 'Image', kind_text: 'Text', kind_checkliste: 'Checklist', kind_qr: 'QR code', kind_banner: 'Banner', kind_notiz: 'Note', kind_: 'Print',
     defText: 'Hello!', defListTitle: 'Groceries', defListItems: 'Milk\nBread\nApples', defBanner: 'Congratulations!',
-    switchTo: 'Auf Deutsch umschalten'
+    switchTo: 'Auf Deutsch umschalten',
+    step_request: 'Choosing printer', step_connect: 'Connecting', step_service: 'Finding print service',
+    step_char: 'Finding write channel', step_write: 'Sending data',
+    safeMode: 'Safe transfer', safeModeHint: 'Sends more slowly. Turn on if prints get cut off (on by default on Mac, iPhone and iPad).'
   }
 };
 let LANG = store.get('lang', (navigator.language || 'de').toLowerCase().startsWith('de') ? 'de' : 'en');
@@ -564,34 +572,53 @@ function buildJob(packed, h, energy, density, feed) {
 }
 
 // ================================================================ Bluetooth
+const UUID = id => `0000${id}-0000-1000-8000-00805f9b34fb`;   // volle UUIDs: robuster in iOS-Browsern
+const IS_APPLE = /Mac|iPhone|iPad|iPod/.test(navigator.platform || '') || /iPhone|iPad|Macintosh/.test(navigator.userAgent);
+/** Fehler mit dem Schritt, an dem es gescheitert ist */
+function stepError(step, e) {
+  const detail = [e && e.name !== 'Error' ? e.name : '', e && e.message ? e.message : ''].filter(Boolean).join(': ') || String(e);
+  const err = new Error(`${T('step_' + step)} – ${detail}`);
+  err.name = e && e.name === 'NotFoundError' && step === 'request' ? 'NotFoundError' : 'StepError';
+  return err;
+}
 const Printer = {
   dev: null, tx: null, state: 'off', status: 0, paused: false, chunk: 180, listeners: [],
   set(s) { this.state = s; this.listeners.forEach(f => f()); },
+  /** Pause zwischen zwei Paketen: macOS/iOS verwerfen sonst Daten, wenn zu schnell gesendet wird */
+  pace() { return store.get('safeMode', IS_APPLE) ? 22 : 6; },
   async connect() {
     if (!navigator.bluetooth) throw new Error(T('noBtBrowser'));
-    if (!this.dev) {
-      this.dev = await navigator.bluetooth.requestDevice({
-        filters: [{ services: [0xaf30] }, { services: [0xae30] }, { namePrefix: 'PD0' }, { namePrefix: 'MX' },
-          { namePrefix: 'GB0' }, { namePrefix: 'GT0' }, { namePrefix: 'YT0' }, { namePrefix: 'MINI' }],
-        optionalServices: [0xae30, 0xaf30]
-      });
-      this.dev.addEventListener('gattserverdisconnected', () => { this.tx = null; this.set('off'); });
-    }
-    this.set('connecting');
+    let step = 'request';
     try {
+      if (!this.dev) {
+        this.dev = await navigator.bluetooth.requestDevice({
+          filters: [{ services: [UUID('af30')] }, { services: [UUID('ae30')] }, { namePrefix: 'PD0' }, { namePrefix: 'MX' },
+            { namePrefix: 'GB0' }, { namePrefix: 'GT0' }, { namePrefix: 'YT0' }, { namePrefix: 'MINI' }],
+          optionalServices: [UUID('ae30'), UUID('af30')]
+        });
+        this.dev.addEventListener('gattserverdisconnected', () => { this.tx = null; this.set('off'); });
+      }
+      this.set('connecting');
+      step = 'connect';
       const server = await this.dev.gatt.connect();
-      const svc = await server.getPrimaryService(0xae30);
-      this.tx = await svc.getCharacteristic(0xae01);
+      step = 'service';
+      const svc = await server.getPrimaryService(UUID('ae30'));
+      step = 'char';
+      this.tx = await svc.getCharacteristic(UUID('ae01'));
       try {
-        const rx = await svc.getCharacteristic(0xae02);
+        const rx = await svc.getCharacteristic(UUID('ae02'));
         rx.addEventListener('characteristicvaluechanged', e => this.onData(new Uint8Array(e.target.value.buffer)));
         await rx.startNotifications();
       } catch (e) { console.warn('Keine Benachrichtigungen', e); }
       this.paused = false;
-      await this.write(cmd(0xA3, [0]));
-      await sleep(300);
+      // Statusabfrage ist nur eine Zugabe – scheitert sie, bleibt die Verbindung trotzdem bestehen
+      try { await this.write(cmd(0xA3, [0])); await sleep(300); } catch (e) { console.warn('Statusabfrage', e); }
       this.set('ready');
-    } catch (e) { this.tx = null; this.set('off'); throw e; }
+    } catch (e) {
+      this.tx = null; this.set('off');
+      if (step === 'request' && !this.dev) throw e.name === 'NotFoundError' ? e : stepError(step, e);
+      throw stepError(step, e);
+    }
   },
   disconnect() { if (this.dev && this.dev.gatt.connected) this.dev.gatt.disconnect(); this.tx = null; this.set('off'); },
   forget() { this.disconnect(); this.dev = null; },
@@ -606,32 +633,37 @@ const Printer = {
   },
   async write(bytes) {
     const data = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
-    if (this.tx.writeValueWithoutResponse) await this.tx.writeValueWithoutResponse(data);
+    // Bluefy kennt writeValueWithoutResponse nicht -> aelteres writeValue
+    if (typeof this.tx.writeValueWithoutResponse === 'function') await this.tx.writeValueWithoutResponse(data);
     else await this.tx.writeValue(data);
   },
   async send(job, copies, onProgress) {
     if (!this.tx) await this.connect();
     this.set('printing');
+    const pace = this.pace();
     try {
-      const total = job.length * copies; let sent = 0;
+      const total = job.length * copies; let sent = 0, n = 0;
       for (let c = 0; c < copies; c++) {
         for (let i = 0; i < job.length;) {
-          const t0 = Date.now();
-          while (this.paused) { if (Date.now() - t0 > 20000) throw new Error(T('notResponding')); await sleep(10); }
+          if (this.paused) {   // Drucker meldet vollen Puffer -> warten, danach kurz Luft lassen
+            const t0 = Date.now();
+            while (this.paused) { if (Date.now() - t0 > 20000) throw new Error(T('notResponding')); await sleep(10); }
+            await sleep(60);
+          }
           const part = job.subarray(i, i + this.chunk);
           try { await this.write(part); }
           catch (e) {   // zu grosses Paket? -> kleiner versuchen
             if (this.chunk > 20) { this.chunk = 20; continue; }
-            throw e;
+            throw stepError('write', e);
           }
           i += part.length; sent += part.length;
-          if ((i / this.chunk) % 8 === 0) { onProgress(sent / total); await sleep(0); }
+          if (++n % 8 === 0) onProgress(sent / total);
+          await sleep(pace);
         }
       }
       onProgress(1);
       await sleep(800);
-      await this.write(cmd(0xA3, [0]));
-      await sleep(300);
+      try { await this.write(cmd(0xA3, [0])); await sleep(300); } catch {}
       this.set('ready');
     } catch (e) { this.set(this.dev && this.dev.gatt.connected ? 'ready' : 'off'); throw e; }
   }
@@ -891,7 +923,7 @@ function slider(id, val, fmt, onInput) {
   return { get value() { return +el.value; }, set value(v) { el.value = v; lab.textContent = fmt(+v); } };
 }
 let toastT;
-function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600); }
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), Math.max(2600, msg.length * 70)); }
 const fmtCm = v => (v / 80).toLocaleString(LOCALE(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' cm';
 
 // ================================================================ Zustand
@@ -920,6 +952,7 @@ const ntDate = toggle('ntDate', store.get('ntDate', true), () => render());
 const ntFrame = toggle('ntFrame', store.get('ntFrame', false), () => render());
 const tune = slider('tune', store.get('tune', 0), v => (v > 0 ? '+' : '') + v + ' %', () => store.set('tune', tune.value));
 const feed = slider('feed', store.get('feed', 80), fmtCm, () => store.set('feed', feed.value));
+const safe = toggle('safeB', store.get('safeMode', IS_APPLE), () => store.set('safeMode', safe.on));
 const fields = { txt: T('defText'), clTitle: T('defListTitle'), clItems: T('defListItems'), qrText: '', qrCap: '', bnText: T('defBanner'), ntTitle: '', ntBody: '' };
 for (const [id, def] of Object.entries(fields)) { $(id).value = store.get(id, def); $(id).addEventListener('input', () => { store.set(id, $(id).value); renderLater(); }); }
 
